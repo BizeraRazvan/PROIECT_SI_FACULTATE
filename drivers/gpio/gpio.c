@@ -1,33 +1,103 @@
-#ifndef EEPROM_H
-#define EEPROM_H
-
-#include <stdint.h>
+#include "gpio.h"
+#include "utils.h"
 
 /**
- * @brief Read a byte from the specified EEPROM address.
+ * @brief Initializes a specific GPIO pin with the given direction.
  * 
- * @param address The 0-1023 address to read from.
- * @return uint8_t The data byte read.
+ * Configures the Data Direction Register (DDR) for the specified port.
+ * 
+ * @param port The GPIO port (GPIO_PORTB, GPIO_PORTC, GPIO_PORTD).
+ * @param pin The pin number (0-7).
+ * @param dir The direction (GPIO_INPUT or GPIO_OUTPUT).
  */
-uint8_t EEPROM_Read(uint16_t address);
+void GPIO_Init(gpio_port_t port, uint8_t pin, gpio_dir_t dir) {
+    switch (port) {
+        case GPIO_PORTB:
+            if (dir == GPIO_OUTPUT) {
+                SET_BIT(DDRB, pin);
+            } else {
+                CLEAR_BIT(DDRB, pin);
+            }
+            break;
+        case GPIO_PORTC:
+            if (dir == GPIO_OUTPUT) {
+                SET_BIT(DDRC, pin);
+            } else {
+                CLEAR_BIT(DDRC, pin);
+            }
+            break;
+        case GPIO_PORTD:
+            if (dir == GPIO_OUTPUT) {
+                SET_BIT(DDRD, pin);
+            } else {
+                CLEAR_BIT(DDRD, pin);
+            }
+            break;
+    }
+}
 
 /**
- * @brief Write a byte to the specified EEPROM address.
- * This function waits for previous writes to complete.
+ * @brief Writes a digital value (HIGH or LOW) to a GPIO pin.
  * 
- * @param address The 0-1023 address to write to.
- * @param data The data byte to write.
+ * Manipulates the PORT register to set the pin state.
+ * 
+ * @param port The GPIO port.
+ * @param pin The pin number (0-7).
+ * @param state The state to write (GPIO_LOW or GPIO_HIGH).
  */
-void EEPROM_Write(uint16_t address, uint8_t data);
+void GPIO_Write(gpio_port_t port, uint8_t pin, gpio_state_t state) {
+    switch (port) {
+        case GPIO_PORTB:
+            WRITE_BIT(PORTB, pin, state);
+            break;
+        case GPIO_PORTC:
+            WRITE_BIT(PORTC, pin, state);
+            break;
+        case GPIO_PORTD:
+            WRITE_BIT(PORTD, pin, state);
+            break;
+    }
+}
 
 /**
- * @brief Update a byte at the specified EEPROM address.
- * Only writes if the stored value is different from the new value.
- * This helps prolong EEPROM life.
+ * @brief Reads the logical state of a GPIO pin.
  * 
- * @param address The 0-1023 address to update.
- * @param data The data byte to write.
+ * Reads from the PIN register to determing input state.
+ * 
+ * @param port The GPIO port.
+ * @param pin The pin number (0-7).
+ * @return gpio_state_t The current state (GPIO_LOW or GPIO_HIGH).
  */
-void EEPROM_Update(uint16_t address, uint8_t data);
+gpio_state_t GPIO_Read(gpio_port_t port, uint8_t pin) {
+    switch (port) {
+        case GPIO_PORTB:
+            return CHECK_BIT(PINB, pin);
+        case GPIO_PORTC:
+            return CHECK_BIT(PINC, pin);
+        case GPIO_PORTD:
+            return CHECK_BIT(PIND, pin);
+    }
+    return GPIO_LOW;
+}
 
-#endif // EEPROM_H
+/**
+ * @brief Toggles the state of a GPIO pin.
+ * 
+ * Inverts the current bit in the PORT register.
+ * 
+ * @param port The GPIO port.
+ * @param pin The pin number (0-7).
+ */
+void GPIO_Toggle(gpio_port_t port, uint8_t pin) {
+    switch (port) {
+        case GPIO_PORTB:
+            TOGGLE_BIT(PORTB, pin);
+            break;
+        case GPIO_PORTC:
+            TOGGLE_BIT(PORTC, pin);
+            break;
+        case GPIO_PORTD:
+            TOGGLE_BIT(PORTD, pin);
+            break;
+    }
+}
