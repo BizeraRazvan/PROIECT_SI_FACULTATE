@@ -12,18 +12,17 @@ int main(void) {
     uint32_t last_time = 0;
 
     while (1) {
-            
-
-
         
         for(int i = 0 ; i < 12 ; i++) {
         GPIO_Toggle(LED_BUILTIN);
         Delay(200); 
         }
+
          for(int i = 0 ; i < 12 ; i++) {
         GPIO_Toggle(LED_BUILTIN);
         Delay(500); 
         }
+
         for(int i = 0 ; i < 12 ; i++) {
         GPIO_Toggle(LED_BUILTIN);
         Delay(900); 
